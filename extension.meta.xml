@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="yourls" status="experimental" xmlns="http://getsymphony.com/schemas/extension/1.0">
+	<name>YOURLS</name>
+	<description>Integrate with the YOURLS directly from your Symphony Entries</description>
+	<repo type="github">https://github.com/brendo/yourls</repo>
+	<types>
+		<type>Field Types</type>
+	</types>
+	<authors>
+		<author>
+			<name github="brendo" symphony="brendo">Brendan Abbott</name>
+			<website>http://bloodbone.ws</website>
+		</author>
+	</authors>
+	<releases>
+		<release version="0.1" date="2013-07-09" min='2.3.3'>
+			- Initial package
+		</release>
+	</releases>
+</extension>
