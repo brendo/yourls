@@ -4,12 +4,6 @@
 
 	Class fieldYOURLS extends Field {
 
-		/**
-		 * Cache time, in minutes
-		 * @var integer
-		 */
-		private static $cache_time = 5;
-
 	/*-------------------------------------------------------------------------
 		Definition:
 	-------------------------------------------------------------------------*/
@@ -132,30 +126,14 @@
 
 			// Do we have a short URL?
 			if(isset($data['value'])) {
-				// Get URL Stats
-				$cache_id = md5($data['value']);
-				$cache = new Cacheable(Symphony::Database());
-				$cachedData = $cache->check($cache_id);
-
-				// Execute if the cache doesn't exist, or if it is old.
-				if(
-					(!is_array($cachedData) || empty($cachedData)) // There's no cache.
-					|| (time() - $cachedData['creation']) > (self::$cache_time * 60) // The cache is old.
-				) {
-					$yourls = $this->yourls();
-					$response = $yourls->stats($data['value']);
-					$cache->write($cache_id, json_encode($response), self::$cache_time);
-				}
-				// Used cached stats
-				else {
-					$response = json_decode($cachedData['data']);
-				}
+				$yourls = $this->yourls();
+				$response = $yourls->stats($data['value']);
 
 				// Display stats
 				$element = new XMLElement('span');
 				$element->setAttribute('class', 'frame');
 				$element->appendChild(
-					new XMLElement('p', Widget::Anchor($data['value'], $data['value']))
+					new XMLElement('p', Widget::Anchor($response->link->shorturl, $response->link->shorturl))
 				);
 
 				$element->appendChild(
@@ -219,8 +197,31 @@
 		Output:
 	-------------------------------------------------------------------------*/
 
-		public function appendFormattedElement(&$wrapper, $data, $encode=false){
-			// @TODO
+		public function appendFormattedElement(&$wrapper, $data, $encode=false) {
+			if(empty($data)) {
+				return;
+			}
+
+			// Get the stats as XML
+			$yourls = $this->yourls();
+			$response = $yourls->stats($data['value']);
+
+			$item = new XMLElement($this->get('element_name'));
+			$item->setAttribute('clicks', $response->link->clicks);
+
+			$link = new XMLElement('shorturl', $response->link->shorturl);
+			$item->appendChild($link);
+
+			$original_link = new XMLElement('url', $response->link->url);
+			$item->appendChild($original_link);
+
+			$title = new XMLElement('title', $response->link->title);
+			$title->setAttribute('handle', Lang::createHandle($response->link->title));
+			$item->appendChild($title);
+
+			$item->appendChild(General::createXMLDateObject($response->link->timestamp, 'created'));
+
+			$wrapper->appendChild($item);
 		}
 
 	}
