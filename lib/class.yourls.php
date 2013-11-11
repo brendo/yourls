@@ -76,12 +76,7 @@
 
 			$data = $this->request($params);
 
-			if($format === 'json') {
-				return json_decode($data);
-			}
-			else {
-				return $data;
-			}
+			return json_decode($data);
 		}
 
 		/**
