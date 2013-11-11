@@ -6,6 +6,12 @@
 
 	class Extension_yourls extends Extension {
 
+		public static $fields = array();
+
+	/*-------------------------------------------------------------------------
+		Setup:
+	-------------------------------------------------------------------------*/
+
 		public function install() {
 			return true;
 		}
@@ -17,12 +23,21 @@
 		public function getSubscribedDelegates(){
 			return array(
 				array(
+					'page'		=> '/publish/new/',
+					'delegate'	=> 'EntryPostCreate',
+					'callback'	=> 'compileBackendFields'
+				),
+				array(
 					'page' => '/system/preferences/',
 					'delegate' => 'AddCustomPreferenceFieldsets',
 					'callback' => 'appendPreferences'
 				)
 			);
 		}
+		
+	/*-------------------------------------------------------------------------
+		Delegates:
+	-------------------------------------------------------------------------*/
 		
 		/** 
 		 * Display settings on the Preferences page
@@ -63,6 +78,43 @@
 
 			// Append new preference group
 			$context['wrapper']->appendChild($group);
+		}
+
+	/*-------------------------------------------------------------------------
+		Utilities:
+	-------------------------------------------------------------------------*/
+
+		public static function getXPath($entry) {
+			$entry_xml = new XMLElement('entry');
+			$entry_xml->setAttribute('id', $entry->get('id'));
+			$data = $entry->getData();
+
+			// Add fields:
+			$fields = FieldManager::fetch(array_keys($data), $entry->get('section_id'));
+			foreach ($data as $field_id => $values) {
+				if (empty($field_id)) continue;
+
+				$field = FieldManager::fetch($field_id);
+				$field->appendFormattedElement($entry_xml, $values, false);
+			}
+
+			$xml = new XMLElement('data');
+			$xml->appendChild($entry_xml);
+
+			$dom = new DOMDocument();
+			$dom->loadXML($xml->generate(true));
+
+			return new DOMXPath($dom);
+		}
+
+		public static function registerField($field) {
+			self::$fields[] = $field;
+		}
+	
+		public static function compileBackendFields($context) {
+			foreach (self::$fields as $field) {
+				$field->compile($context['entry']);
+			}
 		}
 
 	}
