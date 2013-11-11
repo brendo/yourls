@@ -28,6 +28,11 @@
 					'callback'	=> 'compileBackendFields'
 				),
 				array(
+					'page'		=> '/publish/edit/',
+					'delegate'	=> 'EntryPostEdit',
+					'callback'	=> 'compileBackendFields'
+				),
+				array(
 					'page' => '/system/preferences/',
 					'delegate' => 'AddCustomPreferenceFieldsets',
 					'callback' => 'appendPreferences'
