@@ -1,6 +1,7 @@
 <?php
 
 	require_once EXTENSIONS . '/yourls/lib/class.yourls.php';
+	require_once EXTENSIONS . '/yourls/extension.driver.php';
 
 	Class fieldYOURLS extends Field {
 
@@ -272,7 +273,13 @@
 				);
 			}
 			else {
-				$element = new XMLElement('p', __('A short URL will be generated when this entry is created'));
+				// Display message
+				$span = new XMLElement('span');
+				$span->setAttribute('class', 'frame');
+				$span->appendChild(
+					new XMLElement('span', __('A shortlink will be generated on save.'))
+				);
+				$element->appendChild($span);
 			}
 
 			if($flagWithError != NULL) {
